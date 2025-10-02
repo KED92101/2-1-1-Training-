@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rumors vs Trends Interactive</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%);
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .container {
+            max-width: 1000px;
+            width: 100%;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 35px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.2em;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.95;
+        }
+        
+        .progress-section {
+            background: #f8f9fa;
+            padding: 20px 35px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #e0e0e0;
+        }
+        
+        .scenario-counter {
+            font-size: 1.1em;
+            color: #2c3e50;
+            font-weight: bold;
+        }
+        
+        .score-display {
+            font-size: 1.1em;
+            color: #667eea;
+            font-weight: bold;
+        }
+        
+        .content {
+            padding: 40px;
+            min-height: 500px;
+        }
+        
+        .call-log {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+            border-left: 5px solid #667eea;
+        }
+        
+        .call-entry {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            animation: slideIn 0.3s ease;
+        }
+        
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .call-entry .timestamp {
+            color: #667eea;
+            font-size: 0.9em;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+        
+        .call-entry .message {
+            color: #2c3e50;
+            font-size: 1.05em;
+            line-height: 1.6;
+        }
+        
+        .call-count-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            font-size: 1.1em;
+        }
+        
+        .question-section {
+            margin-top: 30px;
+        }
+        
+        .question-section h3 {
+            color: #2c3e50;
+            font-size: 1.6em;
+            margin-bottom: 25px;
+        }
+        
+        .choices {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .choice-btn {
+            background: white;
+            border: 3px solid #e0e0e0;
+            padding: 25px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: left;
+            font-size: 1.1em;
+            color: #2c3e50;
+            line-height: 1.6;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .choice-btn .icon {
+            font-size: 2em;
+            flex-shrink: 0;
+        }
+        
+        .choice-btn:hover {
+            border-color: #667eea;
+            background: #f8f9fa;
+            transform: translateX(5px);
+        }
+        
+        .choice-btn:active {
+            transform: translateX(5px) scale(0.98);
+        }
+        
+        .feedback {
+            padding: 30px;
+            border-radius: 15px;
+            margin-top: 30px;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .feedback.correct {
+            background: #d4edda;
+            border: 3px solid #28a745;
+        }
+        
+        .feedback.incorrect {
+            background: #f8d7da;
+            border: 3px solid #dc3545;
+        }
+        
+        .feedback .icon {
+            font-size: 3em;
+            margin-bottom: 15px;
+        }
+        
+        .feedback h4 {
+            font-size: 1.6em;
+            margin-bottom: 15px;
+        }
+        
+        .feedback.correct h4 {
+            color: #155724;
+        }
+        
+        .feedback.incorrect h4 {
+            color: #721c24;
+        }
+        
+        .feedback p {
+            font-size: 1.1em;
+            line-height: 1.8;
+            margin-bottom: 10px;
+        }
+        
+        .feedback.correct p {
+            color: #155724;
+        }
+        
+        .feedback.incorrect p {
+            color: #721c24;
+        }
+        
+        .continue-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 30px;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: transform 0.3s ease;
+        }
+        
+        .continue-btn:hover {
+            transform: scale(1.05);
+        }
+        
+        .final-results {
+            text-align: center;
+            padding: 40px;
+        }
+        
+        .score-circle {
+            width: 180px;
+            height: 180px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 30px;
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+        }
+        
+        .score-circle .number {
+            font-size: 3.5em;
+            font-weight: bold;
+            line-height: 1;
+        }
+        
+        .score-circle .label {
+            font-size: 1em;
+            margin-top: 10px;
+        }
+        
+        .final-results h2 {
+            color: #2c3e50;
+            font-size: 2.2em;
+            margin-bottom: 20px;
+        }
+        
+        .final-results p {
+            color: #555;
+            font-size: 1.2em;
+            line-height: 1.8;
+            max-width: 700px;
+            margin: 0 auto 30px;
+        }
+        
+        .restart-btn {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 30px;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+        
+        .restart-btn:hover {
+            transform: scale(1.05);
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        @media (max-width: 768px) {
+            .content {
+                padding: 25px;
+            }
+            
+            .header h1 {
+                font-size: 1.6em;
+            }
+            
+            .choice-btn {
+                padding: 20px;
+                font-size: 1em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🕵️ Intelligence Network Practice</h1>
+            <p>Identify rumors vs trends and take the right action</p>
+        </div>
+        <div class="progress-section">
+            <div class="scenario-counter" id="scenarioCounter">Scenario 1 of 5</div>
+            <div class="score-display" id="scoreDisplay">Score: 0/0</div>
+        </div>
+        <div class="content" id="content"></div>
+    </div>
+
+    <script>
+        const scenarios = [
+            {
+                id: 1,
+                calls: [
+                    { time: "2:15 PM", message: "Hi, I just saw smoke coming from the canyon near Torrey Pines. Is there a fire?" }
+                ],
+                callCount: 1,
+                question: "You receive this call. What is this, and what should you do?",
+                choices: [
+                    {
+                        icon: "⚠️",
+                        text: "This is a RUMOR (1 call). Notify my supervisor immediately and keep the caller on the line. Don't guess or assume.",
+                        correct: true,
+                        feedback: "Perfect! This is a single unverified report - a rumor. You correctly identified that you need to notify your supervisor immediately while keeping the caller on the line. Never guess or assume. This could be the first report of an emerging incident."
+                    },
+                    {
+                        icon: "🚨",
+                        text: "This is a TREND (multiple calls). Escalate to duty officers who will contact emergency services.",
+                        correct: false,
+                        feedback: "Not quite. This is only ONE call, which makes it a rumor, not a trend. Trends occur when you get multiple calls about the same incident. Your action should be to notify your supervisor and keep the caller on the line."
+                    },
+                    {
+                        icon: "📋",
+                        text: "Check the disaster portal. If it's not there, tell the caller there's no fire and move on.",
+                        correct: false,
+                        feedback: "This is dangerous! Just because something isn't in the portal yet doesn't mean it's not real. This could be the FIRST report of an emerging incident. Always notify your supervisor immediately with single reports like this."
+                    }
+                ]
+            },
+            {
+                id: 2,
+                calls: [
+                    { time: "3:42 PM", message: "There's a major car accident blocking all lanes on I-5 North near La Jolla." },
+                    { time: "3:44 PM", message: "I'm stuck in traffic on I-5 North. Looks like a huge accident. Are all lanes blocked?" },
+                    { time: "3:45 PM", message: "Is I-5 closed? I heard there was a bad accident near La Jolla." }
+                ],
+                callCount: 3,
+                question: "You've received these three calls in just a few minutes. What is this, and what happens next?",
+                choices: [
+                    {
+                        icon: "🚨",
+                        text: "This is a TREND (multiple calls). My supervisor will escalate to duty officers who have direct connections to emergency services.",
+                        correct: true,
+                        feedback: "Excellent! Three calls about the same incident in a few minutes is definitely a trend. Your supervisor will escalate this to duty officers who have direct connections to emergency services. If confirmed, the disaster portal will be updated with authorized information."
+                    },
+                    {
+                        icon: "⚠️",
+                        text: "This is still a RUMOR. I'll notify my supervisor about each call separately and keep waiting.",
+                        correct: false,
+                        feedback: "Not quite. Multiple calls about the same incident = TREND, not rumor. A rumor is a single unverified report. When you see a pattern like this, it indicates something real is happening and needs escalation through duty officers."
+                    },
+                    {
+                        icon: "📱",
+                        text: "I'll check social media to see if anyone else is posting about it before I notify my supervisor.",
+                        correct: false,
+                        feedback: "Never rely on social media or other intel sources! Multiple calls about the same incident is a clear trend that needs immediate supervisor notification. Social media is 'intel,' not 'information.'"
+                    }
+                ]
+            },
+            {
+                id: 3,
+                calls: [
+                    { time: "11:23 AM", message: "My neighbor said the evacuation zone expanded to include our area, but I haven't received an alert. Is this true?" }
+                ],
+                callCount: 1,
+                question: "How should you handle this call?",
+                choices: [
+                    {
+                        icon: "⚠️",
+                        text: "This is a RUMOR. Keep the caller on the line, notify my supervisor, and check the disaster portal for official information.",
+                        correct: true,
+                        feedback: "Exactly right! This is unverified information from a neighbor (intel, not information). Keep the caller on the line, notify your supervisor immediately, and rely only on the disaster portal for official evacuation information. This could be a dangerous rumor or the first report of a real expansion."
+                    },
+                    {
+                        icon: "✅",
+                        text: "Tell them if they didn't get an official alert, the evacuation zone hasn't expanded. Their neighbor is wrong.",
+                        correct: false,
+                        feedback: "Dangerous assumption! You can't definitively say the neighbor is wrong without checking. This could be the first report of an actual expansion. Always notify your supervisor and check official sources rather than dismissing the caller."
+                    },
+                    {
+                        icon: "📞",
+                        text: "Suggest they call their neighbor back to get more details about where they heard this information.",
+                        correct: false,
+                        feedback: "No - you need to handle this immediately! Keep the caller on the line, notify your supervisor, and check the disaster portal. Don't send them away to gather more intel. You're the information lifeline."
+                    }
+                ]
+            },
+            {
+                id: 4,
+                calls: [
+                    { time: "9:15 AM", message: "Is the shelter at Lincoln High School accepting people? I heard it's full." },
+                    { time: "9:17 AM", message: "Someone posted on Facebook that Lincoln High School shelter is at capacity. True?" },
+                    { time: "9:18 AM", message: "Are you still sending people to Lincoln High? My friend tried to go there and was turned away." },
+                    { time: "9:20 AM", message: "The Lincoln High School shelter - is it still open? I'm hearing mixed things." }
+                ],
+                callCount: 4,
+                question: "Four calls in five minutes about the same shelter. What do you do?",
+                choices: [
+                    {
+                        icon: "🚨",
+                        text: "This is a clear TREND. Notify supervisor immediately so they can escalate to duty officers and verify shelter status.",
+                        correct: true,
+                        feedback: "Perfect identification! Four calls about the same shelter in five minutes is absolutely a trend. Your supervisor needs to escalate this to duty officers who can verify with emergency services whether the shelter is truly at capacity. If confirmed, the portal gets updated so you can give callers accurate information."
+                    },
+                    {
+                        icon: "📱",
+                        text: "Since multiple people mentioned Facebook and friends, this is probably just social media rumors. Ignore it.",
+                        correct: false,
+                        feedback: "Never ignore patterns! Even if sources include social media, multiple calls about the same issue = trend that needs escalation. This could indicate a real problem at the shelter that needs immediate attention and portal updates."
+                    },
+                    {
+                        icon: "📋",
+                        text: "Check the portal once. If it says the shelter is open, tell all future callers it's open regardless of what they're hearing.",
+                        correct: false,
+                        feedback: "This misses the critical pattern! Four calls in five minutes means something might have changed. This trend needs immediate escalation so duty officers can verify current shelter status and update the portal if needed."
+                    }
+                ]
+            },
+            {
+                id: 5,
+                calls: [
+                    { time: "4:55 PM", message: "I heard on the radio that power is out in the entire downtown area. Can you confirm?" }
+                ],
+                callCount: 1,
+                question: "Final scenario: How do you handle this call about a power outage?",
+                choices: [
+                    {
+                        icon: "⚠️",
+                        text: "This is a RUMOR (single call with unverified radio intel). Notify supervisor, keep caller on line, check disaster portal only.",
+                        correct: true,
+                        feedback: "Outstanding! You correctly identified this as a rumor - it's ONE call with unverified information from radio (intel, not information). You know to notify your supervisor immediately, keep the caller on the line, and check only the disaster portal for official information. You've mastered the intelligence network role!"
+                    },
+                    {
+                        icon: "📻",
+                        text: "If it was on the radio, it's probably true. Confirm the power outage for the caller.",
+                        correct: false,
+                        feedback: "Remember: radio = INTEL, not INFORMATION! Just because it's on the radio doesn't make it verified. Only information from the disaster portal is 100% accurate and authorized. This is a single unverified report that needs supervisor notification."
+                    },
+                    {
+                        icon: "🔌",
+                        text: "Ask the caller to call the power company directly since this isn't a 2-1-1 issue.",
+                        correct: false,
+                        feedback: "During disasters, power outages are definitely a 2-1-1 issue! This could be the first report of a widespread outage. Notify your supervisor immediately and check the portal. You're potentially the first link in the chain that alerts emergency services."
+                    }
+                ]
+            }
+        ];
+
+        let currentScenario = 0;
+        let score = 0;
+        let totalAnswered = 0;
+        let answered = false;
+
+        function updateProgress() {
+            document.getElementById('scenarioCounter').textContent = `Scenario ${currentScenario + 1} of ${scenarios.length}`;
+            document.getElementById('scoreDisplay').textContent = `Score: ${score}/${totalAnswered}`;
+        }
+
+        function renderScenario() {
+            answered = false;
+            const scenario = scenarios[currentScenario];
+            const content = document.getElementById('content');
+            
+            let callsHTML = '';
+            scenario.calls.forEach(call => {
+                callsHTML += `
+                    <div class="call-entry">
+                        <div class="timestamp">📞 ${call.time}</div>
+                        <div class="message">"${call.message}"</div>
+                    </div>
+                `;
+            });
+            
+            content.innerHTML = `
+                <div class="call-log">
+                    <div class="call-count-badge">${scenario.callCount} Call${scenario.callCount > 1 ? 's' : ''} Received</div>
+                    ${callsHTML}
+                </div>
+                
+                <div class="question-section">
+                    <h3>${scenario.question}</h3>
+                    <div class="choices" id="choices"></div>
+                </div>
+            `;
+            
+            const choicesContainer = document.getElementById('choices');
+            scenario.choices.forEach((choice, index) => {
+                const btn = document.createElement('button');
+                btn.className = 'choice-btn';
+                btn.innerHTML = `
+                    <span class="icon">${choice.icon}</span>
+                    <span>${choice.text}</span>
+                `;
+                btn.onclick = () => handleChoice(index);
+                choicesContainer.appendChild(btn);
+            });
+            
+            updateProgress();
+        }
+
+        function handleChoice(choiceIndex) {
+            if (answered) return;
+            answered = true;
+            totalAnswered++;
+            
+            const scenario = scenarios[currentScenario];
+            const choice = scenario.choices[choiceIndex];
+            const content = document.getElementById('content');
+            
+            const buttons = document.querySelectorAll('.choice-btn');
+            buttons.forEach(btn => btn.style.pointerEvents = 'none');
+            
+            if (choice.correct) {
+                score++;
+            }
+            
+            const feedbackClass = choice.correct ? 'correct' : 'incorrect';
+            const feedbackIcon = choice.correct ? '✅' : '❌';
+            const feedbackTitle = choice.correct ? 'Excellent Work!' : 'Not Quite Right';
+            
+            const feedbackHTML = `
+                <div class="feedback ${feedbackClass}">
+                    <div class="icon">${feedbackIcon}</div>
+                    <h4>${feedbackTitle}</h4>
+                    <p>${choice.feedback}</p>
+                    <button class="continue-btn" onclick="nextScenario()">
+                        ${currentScenario < scenarios.length - 1 ? 'Next Scenario →' : 'See Final Results'}
+                    </button>
+                </div>
+            `;
+            
+            content.innerHTML += feedbackHTML;
+            updateProgress();
+        }
+
+        function nextScenario() {
+            currentScenario++;
+            
+            if (currentScenario < scenarios.length) {
+                renderScenario();
+            } else {
+                showResults();
+            }
+        }
+
+        function showResults() {
+            const content = document.getElementById('content');
+            const percentage = Math.round((score / totalAnswered) * 100);
+            
+            let message = '';
+            let emoji = '';
+            if (percentage === 100) {
+                emoji = '🎉';
+                message = 'Outstanding! You have mastered the intelligence network role. You can confidently identify rumors vs trends and know exactly what actions to take. You\'re ready to serve as that critical first link in the emergency response chain!';
+            } else if (percentage >= 80) {
+                emoji = '👏';
+                message = 'Great work! You have a strong understanding of rumors vs trends and when to escalate. Review the scenarios you missed to further strengthen your skills.';
+            } else if (percentage >= 60) {
+                emoji = '📚';
+                message = 'Good progress! You\'re on the right track. Remember: 1 call = rumor (notify supervisor, keep caller on line). Multiple calls = trend (escalate to duty officers). Review the feedback and practice again!';
+            } else {
+                emoji = '💪';
+                message = 'Keep learning! The key concepts: RUMOR = 1 unverified call (notify supervisor immediately). TREND = multiple calls about same incident (escalate to duty officers). Practice this module again to build your confidence!';
+            }
+            
+            content.innerHTML = `
+                <div class="final-results">
+                    <div class="score-circle">
+                        <div class="number">${score}/${totalAnswered}</div>
+                        <div class="label">Correct</div>
+                    </div>
+                    <h2>${emoji} Intelligence Network Practice Complete!</h2>
+                    <p>${message}</p>
+                    <button class="restart-btn" onclick="restart()">🔄 Practice Again</button>
+                </div>
+            `;
+            
+            document.getElementById('scenarioCounter').textContent = 'Complete!';
+        }
+
+        function restart() {
+            currentScenario = 0;
+            score = 0;
+            totalAnswered = 0;
+            answered = false;
+            renderScenario();
+        }
+
+        renderScenario();
+    </script>
+</body>
+</html>
